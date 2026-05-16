@@ -1,86 +1,341 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Travel - GitHub Pages Test</title>
-  <meta name="theme-color" content="#667eea">
+  <title>实时语音翻译</title>
+  <meta name="theme-color" content="#1a1a2e">
   <link rel="icon" type="image/png" sizes="32x32" href="/travel/favicon.png">
   <link rel="apple-touch-icon" href="/travel/icon-192.png">
   <link rel="manifest" href="/travel/manifest.json">
   <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --accent: #6c63ff;
+      --accent-hover: #5a52d5;
+      --text: #e0e0e0;
+      --text-secondary: #888;
+      --border: #2a2a3e;
+      --danger: #ff4757;
+      --success: #2ed573;
+      --warning: #ffa502;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(135deg, var(--accent), #e056a0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .api-key-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .api-key-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      color: var(--text);
+      font-size: 0.85rem;
+      font-family: monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .api-key-row input:focus { border-color: var(--accent); }
+    .api-key-row button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .api-key-row button:hover { background: var(--accent-hover); }
+    .api-key-hint {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.4rem;
+    }
+    .api-key-hint a { color: var(--accent); }
+
+    .lang-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .lang-group { flex: 1; }
+    .lang-group label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+    .lang-group select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.6rem;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.6rem center;
+      padding-right: 1.8rem;
+    }
+    .lang-arrow {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      padding-top: 1rem;
+    }
+
+    .record-area {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 0.75rem;
+      padding: 1.5rem 0 0.5rem;
+    }
+    .record-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 3px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #fff;
+      transition: all 0.3s;
+      position: relative;
     }
-    .container { text-align: center; padding: 2rem; }
-    h1 { font-size: 3rem; margin-bottom: 0.5rem; }
-    p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 1.5rem; }
-    .card {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      padding: 1.5rem 2rem;
-      margin: 0.5rem 0;
-      min-width: 300px;
+    .record-btn .mic-icon {
+      width: 28px;
+      height: 28px;
+      fill: var(--text-secondary);
+      transition: fill 0.2s;
     }
-    .card h3 { margin-bottom: 0.5rem; font-size: 1rem; opacity: 0.8; }
-    .status { font-size: 1.1rem; font-weight: 600; }
-    .status.ok { color: #4ade80; }
-    .status.fail { color: #f87171; }
-    .timestamp { font-size: 0.8rem; opacity: 0.6; margin-top: 2rem; }
+    .record-btn:hover { border-color: var(--accent); }
+    .record-btn:hover .mic-icon { fill: var(--accent); }
+    .record-btn.recording {
+      border-color: var(--danger);
+      background: rgba(255,71,87,0.1);
+      animation: pulse 1.5s infinite;
+    }
+    .record-btn.recording .mic-icon { fill: var(--danger); }
+    .record-btn.connecting {
+      border-color: var(--warning);
+      animation: pulse 1s infinite;
+    }
+    .record-btn.connecting .mic-icon { fill: var(--warning); }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(108,99,255,0.4); }
+      50% { box-shadow: 0 0 0 16px rgba(108,99,255,0); }
+    }
+    .record-hint {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+    }
+    .status-dot.idle { background: var(--text-secondary); }
+    .status-dot.connecting { background: var(--warning); animation: blink 0.8s infinite; }
+    .status-dot.recording { background: var(--danger); animation: blink 0.8s infinite; }
+    .status-dot.connected { background: var(--success); }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .transcript-area {
+      margin-top: 0.5rem;
+    }
+    .transcript-item {
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 0.4rem;
+      border-radius: 8px;
+      background: var(--bg);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .transcript-item .label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.15rem;
+    }
+    .transcript-item.source .label { color: #6c63ff; }
+    .transcript-item.target .label { color: #2ed573; }
+    .transcript-item .content {
+      color: var(--text);
+      font-size: 1rem;
+    }
+    .transcript-item.streaming .content::after {
+      content: '▌';
+      animation: blink 1s infinite;
+      color: var(--accent);
+      margin-left: 2px;
+    }
+    .empty-state {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 2rem 0;
+      font-size: 0.85rem;
+    }
+
+    .error-toast {
+      background: rgba(255,71,87,0.15);
+      border: 1px solid var(--danger);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      color: var(--danger);
+      font-size: 0.8rem;
+      margin-bottom: 0.75rem;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Hello World</h1>
-    <p>GitHub Pages is working!</p>
+    <h1>实时语音翻译</h1>
+    <p class="subtitle">Powered by 阿里云百炼 · qwen3-livetranslate</p>
+
+    <div class="error-toast" id="error-toast"></div>
 
     <div class="card">
-      <h3>JavaScript Status</h3>
-      <div class="status" id="js-status">⏳ Testing...</div>
+      <div class="card-title">API Key</div>
+      <div class="api-key-row">
+        <input type="password" id="api-key-input" placeholder="输入 DashScope API Key" autocomplete="off">
+        <button id="api-key-save">保存</button>
+      </div>
+      <p class="api-key-hint">
+        Key 仅保存在浏览器本地，不上传到服务器 ·
+        <a href="https://bailian.console.aliyun.com/#/api-key" target="_blank" rel="noopener">获取 Key</a>
+      </p>
     </div>
 
     <div class="card">
-      <h3>PWA Status</h3>
-      <div class="status" id="pwa-status">⏳ Testing...</div>
+      <div class="card-title">代理设置（可选）</div>
+      <div class="api-key-row">
+        <input type="text" id="proxy-input" placeholder="输入函数计算 WebSocket 代理地址，如 wss://xxx.cn-hangzhou.fcapp.run" autocomplete="off">
+        <button id="proxy-save">保存</button>
+      </div>
+      <p class="api-key-hint">
+        部署 FC 代理后可解决浏览器 WebSocket 无法设置 Authorization Header 的问题 ·
+        <a href="https://github.com/wanpga/travel/tree/main/fc-proxy" target="_blank" rel="noopener">部署指南</a>
+      </p>
     </div>
 
-    <div class="timestamp">Page loaded at: <span id="load-time"></span></div>
+    <div class="card">
+      <div class="card-title">语言设置</div>
+      <div class="lang-row">
+        <div class="lang-group">
+          <label>源语言</label>
+          <select id="source-lang">
+            <option value="auto">自动检测</option>
+            <option value="zh">中文</option>
+            <option value="en">英语</option>
+            <option value="ja">日语</option>
+            <option value="ko">韩语</option>
+            <option value="fr">法语</option>
+            <option value="de">德语</option>
+            <option value="es">西班牙语</option>
+            <option value="pt">葡萄牙语</option>
+            <option value="ru">俄语</option>
+            <option value="ar">阿拉伯语</option>
+            <option value="th">泰语</option>
+            <option value="vi">越南语</option>
+          </select>
+        </div>
+        <span class="lang-arrow">→</span>
+        <div class="lang-group">
+          <label>目标语言</label>
+          <select id="target-lang">
+            <option value="zh">中文</option>
+            <option value="en">英语</option>
+            <option value="ja">日语</option>
+            <option value="ko">韩语</option>
+            <option value="fr">法语</option>
+            <option value="de">德语</option>
+            <option value="es">西班牙语</option>
+            <option value="pt">葡萄牙语</option>
+            <option value="ru">俄语</option>
+            <option value="ar">阿拉伯语</option>
+            <option value="th">泰语</option>
+            <option value="vi">越南语</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">翻译</div>
+      <div class="record-area">
+        <button class="record-btn" id="record-btn" title="开始录音">
+          <svg class="mic-icon" viewBox="0 0 24 24">
+            <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/>
+            <path d="M17 11a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/>
+          </svg>
+        </button>
+        <div class="record-hint" id="record-hint">
+          <span class="status-dot idle"></span>点击按钮开始录音
+        </div>
+      </div>
+
+      <div class="transcript-area" id="transcript-area">
+        <div class="empty-state">翻译结果将在这里显示</div>
+      </div>
+    </div>
   </div>
 
-  <script src="/travel/js/test.js"></script>
-  <script>
-    document.getElementById('load-time').textContent = new Date().toLocaleString();
-    if (window.travelTest && window.travelTest.test()) {
-      document.getElementById('js-status').textContent = '✓ Working';
-      document.getElementById('js-status').className = 'status ok';
-    } else {
-      document.getElementById('js-status').textContent = '✗ Not working';
-      document.getElementById('js-status').className = 'status fail';
-    }
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/travel/sw.js')
-        .then(function(reg) {
-          document.getElementById('pwa-status').textContent = '✓ Registered';
-          document.getElementById('pwa-status').className = 'status ok';
-        })
-        .catch(function(err) {
-          document.getElementById('pwa-status').textContent = '✗ ' + err.message;
-          document.getElementById('pwa-status').className = 'status fail';
-        });
-    } else {
-      document.getElementById('pwa-status').textContent = '✗ Not supported';
-      document.getElementById('pwa-status').className = 'status fail';
-    }
-  </script>
+  <script src="/travel/js/translator.js"></script>
 </body>
 </html>

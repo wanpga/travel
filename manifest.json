@@ -1,12 +1,12 @@
 {
-  "name": "Travel - GitHub Pages Test",
-  "short_name": "Travel",
-  "description": "GitHub Pages PWA test project",
+  "name": "实时语音翻译 - Bailian Live Translate",
+  "short_name": "语音翻译",
+  "description": "基于阿里云百炼的实时语音翻译工具",
   "start_url": "/travel/",
   "scope": "/travel/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#0f0f1a",
+  "theme_color": "#0f0f1a",
   "icons": [
     {
       "src": "/travel/icon-192.png",
