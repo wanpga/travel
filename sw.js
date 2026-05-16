@@ -3,7 +3,10 @@ var urlsToCache = [
   '/travel/',
   '/travel/index.html',
   '/travel/js/test.js',
-  '/travel/manifest.json'
+  '/travel/manifest.json',
+  '/travel/icon-192.png',
+  '/travel/icon-512.png',
+  '/travel/favicon.png'
 ];
 
 self.addEventListener('install', function (event) {
